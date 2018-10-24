@@ -60,6 +60,6 @@ void loop() {
   memcpy(&store, &msg, msgSize);                                                // for transmission (req'd by ESP-NOW)
   esp_now_send(NULL, store, msgSize);                                           // NULL sends to all peers
 
-  delay(5000);
+  delay(0);
   msg.number++;                                                                 // msg number is just a loop counter
 }
