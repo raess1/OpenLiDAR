@@ -1,13 +1,5 @@
 /**
- * ESP-NOW to Serial 
- * 
- * This shows how to use an ESP8266/Arduino as an ESP-Now Gateway by having one
- * ESP8266 receive ESP-Now messages and write them to Serial and have another
- * ESP8266 receive those messages over Serial and send them over WiFi. This is to
- * overcome the problem of ESP-Now not working at the same time as WiFi.
- * 
- * Author: Anthony Elder
- * License: Apache License v2
+
  */
 #include <ESP8266WiFi.h>
 extern "C" {
@@ -60,8 +52,18 @@ void initEspNow() {
     //Serial.print("$$"); // $$ just an indicator that this line is a received ESP-Now message
     //Serial.write(mac, 6); // mac address of remote ESP-Now device
     //Serial.write(len);
+     //Serial.print(data);
+    //Serial.write(data, len); 
 
-    Serial.write(data, len); 
-    
+     
+ //String s;
+   //   for (int i=0; i < len; i++) s += char(data[i]);
+     // Serial.println(s); 
+
+String s = String(((char*)data));
+      Serial.println(s);
+
+
+     
   });
 }
