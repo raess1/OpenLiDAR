@@ -1,5 +1,13 @@
 /*
-
+ * Sends a C struct from ESP8266 to ESP8266 using ESP-NOW
+ * NOTE: Security is not set in this example
+ * 
+ * Frank Milburn, April 2018
+ * Tested with Arduino 1.8.4 and Wemos D1 mini
+ *
+ * Based on code from the following:
+ * https://github.com/SensorsIot/ESP-Now-Tests by Andreas Spiess
+ * https://github.com/HarringayMakerSpace/ESP-Now by Anthony Elder
  */
 #include <ESP8266WiFi.h>
 extern "C" {
@@ -7,7 +15,7 @@ extern "C" {
 }
 
 // Change the MAC Address to the receiver ESP(s) that will receive the messages from your sending ESP8266
-uint8_t recMAC[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+uint8_t recMAC[] = {0x36, 0x33, 0x33, 0x33, 0x33, 0x33};
 
 #define WIFI_CHANNEL 1                                                         // Set channel from 1 to 14                                                        
 
