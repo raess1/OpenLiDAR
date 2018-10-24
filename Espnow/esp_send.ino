@@ -1,9 +1,11 @@
 /*
+
  */
 #include <ESP8266WiFi.h>
 extern "C" {
 #include <espnow.h>
 }
+
 
 // Change the MAC Address to the receiver ESP(s) that will receive the messages from your sending ESP8266
 uint8_t recMAC[] = {0x36, 0x33, 0x33, 0x33, 0x33, 0x33};
@@ -52,12 +54,12 @@ void setup() {
 }
 
 void loop() {
-  Serial.print(msg.text);
+  //Serial.print(msg.text);
   Serial.println(msg.number);                                                                                                
   unsigned char store[msgSize];                                                 // messages are stored as unsigned char
   memcpy(&store, &msg, msgSize);                                                // for transmission (req'd by ESP-NOW)
   esp_now_send(NULL, store, msgSize);                                           // NULL sends to all peers
 
-  delay(1);
+  delay(0);
   msg.number++;                                                                 // msg number is just a loop counter
 }
