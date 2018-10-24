@@ -1,5 +1,4 @@
 /*
- 
  */
 #include <ESP8266WiFi.h>
 extern "C" {
@@ -22,7 +21,7 @@ struct __attribute__((packed)) MSG {
 int msgSize = sizeof(msg);                                                      // NOTE:  must be less than 250 bytes!
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(500000);
   Serial.println("\nStarting ESP-NOW Sender");
   
   WiFi.mode(WIFI_STA);                                                          // Place in station mode for ESP-NOW sensor node
