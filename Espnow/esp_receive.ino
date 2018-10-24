@@ -1,11 +1,11 @@
 /**
-
  */
 #include <ESP8266WiFi.h>
 extern "C" {
   #include <espnow.h>
   #include "user_interface.h"
 }
+int count = 0;
 
 /* Set a private Mac Address
  *  http://serverfault.com/questions/40712/what-range-of-mac-addresses-can-i-safely-use-for-my-virtual-machines
@@ -61,9 +61,11 @@ void initEspNow() {
      // Serial.println(s); 
 
 String s = String(((char*)data));
-      Serial.println(s);
-
-
+      //Serial.println(s);
+      Serial.println(count);
+      
+      count += 1;
      
   });
+  
 }
