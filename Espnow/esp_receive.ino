@@ -1,65 +1,66 @@
-/*
-
+/**
+ * ESP-NOW to Serial 
+ * 
+ * This shows how to use an ESP8266/Arduino as an ESP-Now Gateway by having one
+ * ESP8266 receive ESP-Now messages and write them to Serial and have another
+ * ESP8266 receive those messages over Serial and send them over WiFi. This is to
+ * overcome the problem of ESP-Now not working at the same time as WiFi.
+ * 
+ * Author: Anthony Elder
+ * License: Apache License v2
  */
-
 #include <ESP8266WiFi.h>
 extern "C" {
-#include <espnow.h>
+  #include <espnow.h>
+  #include "user_interface.h"
 }
 
-// Insert the MAC Address of the receiver ESP(s) that will receive the messages
-uint8_t recMAC[] = {0x5E, 0xCF, 0x7F, 0xF8, 0x4D, 0x62};
-
-#define WIFI_CHANNEL 1                                                         // Set channel from 1 to 14                                                        
-
-// Set up a struct to store the text and numbers that will be sent - use packed for the smallest possible alignment for bytes
-// All receiving ESP(s) must also have this structure.
-
-#define MSG_LEN 15
-struct __attribute__((packed)) MSG {                                          
-  char text[MSG_LEN];
-  unsigned long number;
-} msg;
-int msgSize = sizeof(msg);                                                      // NOTE:  must be less than 250 bytes!
+/* Set a private Mac Address
+ *  http://serverfault.com/questions/40712/what-range-of-mac-addresses-can-i-safely-use-for-my-virtual-machines
+ * Note: the point of setting a specific MAC is so you can replace this Gateway ESP8266 device with a new one
+ * and the new gateway will still pick up the remote sensors which are still sending to the old MAC 
+ */
+uint8_t mac[] = {0x36, 0x33, 0x33, 0x33, 0x33, 0x33};
+void initVariant() {
+  WiFi.mode(WIFI_AP);
+  wifi_set_macaddr(SOFTAP_IF, &mac[0]);
+}
 
 void setup() {
-  Serial.begin(115200);
-  Serial.println("\nStarting ESP-NOW Sender");
-  
-  WiFi.mode(WIFI_STA);                                                          // Place in station mode for ESP-NOW sensor node
-  WiFi.disconnect();                                                            // Make sure disconnected from WiFi
+  Serial.begin(230400); Serial.println();
 
-  Serial.print("Sender MAC:   ");                                               // Serial print sender MAC
-  Serial.println(WiFi.macAddress().c_str());
-  Serial.print("Receiver MAC: ");                                               // Serial print receiver MAC
-  for (int i = 0; i < 6; i++){
-    Serial.print(recMAC[i], HEX);
-    if (i < 5){
-      Serial.print(":");
-    }
-  }
-  Serial.print(", channel: ");                                                  // Serial print the channel
-  Serial.println(WIFI_CHANNEL);
-  Serial.println("");
+  Serial.print("This node AP mac: "); Serial.println(WiFi.softAPmacAddress());
+  Serial.print("This node STA mac: "); Serial.println(WiFi.macAddress());
 
-  if (esp_now_init() != 0) {                                                    // Halt execution if init failed
-    Serial.println("ESP-NOW init failed");
-    while(1);
-  }
-  esp_now_set_self_role(ESP_NOW_ROLE_CONTROLLER);                               // Sender is in controller role
-  esp_now_add_peer(recMAC, ESP_NOW_ROLE_SLAVE, WIFI_CHANNEL, NULL, 0);          // Sends to MAC of receiver in slave role
-                                                                                // Note that multiple peers can be added
-  strcpy(msg.text, "Hello World: ");                                            // Initialize the text message                                 
-  msg.number = 0;                                                               // and number to be sent
+  initEspNow();
 }
 
-void loop() {
-  Serial.print(msg.text);
-  Serial.println(msg.number);                                                                                                
-  unsigned char store[msgSize];                                                 // messages are stored as unsigned char
-  memcpy(&store, &msg, msgSize);                                                // for transmission (req'd by ESP-NOW)
-  esp_now_send(NULL, store, msgSize);                                           // NULL sends to all peers
+int heartBeat;
 
-  delay(0);
-  msg.number++;                                                                 // msg number is just a loop counter
+void loop() {
+  if (millis()-heartBeat > 30000) {
+    Serial.println("Waiting for ESP-NOW messages...");
+    heartBeat = millis();
+  }
+}
+
+void initEspNow() {
+  if (esp_now_init()!=0) {
+    Serial.println("*** ESP_Now init failed");
+    ESP.restart();
+  }
+
+  esp_now_set_self_role(ESP_NOW_ROLE_COMBO);
+
+  esp_now_register_recv_cb([](uint8_t *mac, uint8_t *data, uint8_t len) {
+
+    // Investigate: There's little doc on what can be done within this method. If its like an ISR
+    // then it should not take too long or do much I/O, but writing to Serial does appear to work ok
+
+    Serial.print("$$"); // $$ just an indicator that this line is a received ESP-Now message
+    Serial.write(mac, 6); // mac address of remote ESP-Now device
+    Serial.write(len);
+    Serial.write(data, len); 
+    
+  });
 }
