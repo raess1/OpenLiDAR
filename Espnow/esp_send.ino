@@ -1,13 +1,5 @@
 /*
- * Sends a C struct from ESP8266 to ESP8266 using ESP-NOW
- * NOTE: Security is not set in this example
- * 
- * Frank Milburn, April 2018
- * Tested with Arduino 1.8.4 and Wemos D1 mini
- *
- * Based on code from the following:
- * https://github.com/SensorsIot/ESP-Now-Tests by Andreas Spiess
- * https://github.com/HarringayMakerSpace/ESP-Now by Anthony Elder
+ 
  */
 #include <ESP8266WiFi.h>
 extern "C" {
